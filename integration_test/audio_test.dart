@@ -4,7 +4,7 @@ import 'package:afinado/audio/mic_listener.dart';
 import 'package:afinado/models/song.dart';
 import 'package:afinado/models/instrument.dart';
 import 'package:afinado/song_loader.dart';
-import 'package:afinado/ui/home_page.dart';
+import 'package:afinado/app_state.dart';
 import 'package:afinado/ui/play_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -54,6 +54,32 @@ void main() {
           .toList()
           .timeout(const Duration(seconds: 5));
       await mic.dispose();
+      return got;
+    });
+    expect(readings, hasLength(5));
+  });
+
+  testWidgets('a screen closing does not cut off the next one\'s microphone', (
+    tester,
+  ) async {
+    if (MicListener.devices().isEmpty) {
+      markTestSkipped('No capture device');
+      return;
+    }
+    final readings = await tester.runAsync(() async {
+      // As when switching tabs: the new screen starts before the old one
+      // is disposed.
+      final old = MicListener();
+      await old.start();
+      final next = MicListener(analyzeChords: true);
+      final started = next.start();
+      final closed = old.dispose();
+      await Future.wait([started, closed]);
+      final got = await next.readings
+          .take(5)
+          .toList()
+          .timeout(const Duration(seconds: 5));
+      await next.dispose();
       return got;
     });
     expect(readings, hasLength(5));

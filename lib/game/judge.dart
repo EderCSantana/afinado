@@ -100,7 +100,7 @@ class Judge {
     double? cents;
     if (event.isChord) {
       final chroma = hearing.chroma;
-      if (chroma != null && _chordHeard(event, chroma)) {
+      if (chroma != null && chordEventHeard(event, chroma)) {
         cents = hearing.tuningCents ?? 0;
       }
     } else if (hearing.midi != null) {
@@ -118,32 +118,6 @@ class Judge {
     return cents;
   }
 
-  bool _chordHeard(NoteEvent event, List<double> chroma) {
-    final chord =
-        event.chord ??
-        // Notes played together from a MIDI file: match their pitch classes.
-        _chordOf(event.midi);
-    if (chord != null) {
-      final best = bestChord(chroma);
-      return best != null &&
-          (best.$1 == chord || chordMatch(chroma, chord) >= 0.7);
-    }
-    final classes = {for (final m in event.midi) m % 12};
-    final inside = classes.fold(0.0, (sum, pc) => sum + chroma[pc]);
-    return inside >= 0.7 && classes.every((pc) => chroma[pc] > 0.04);
-  }
-
-  Chord? _chordOf(List<int> midi) {
-    final classes = {for (final m in midi) m % 12};
-    for (final chord in allChords) {
-      if (chord.pitchClasses.length == classes.length &&
-          chord.pitchClasses.containsAll(classes)) {
-        return chord;
-      }
-    }
-    return null;
-  }
-
   int get score => results.fold(0, (sum, r) => sum + r.points);
 
   /// Results of events that already ended at [time].
@@ -152,4 +126,32 @@ class Judge {
       yield results[i];
     }
   }
+}
+
+/// Whether [chroma] (from the microphone) sounds like [event]'s chord.
+bool chordEventHeard(NoteEvent event, List<double> chroma) {
+  final chord =
+      event.chord ??
+      // Notes played together from a MIDI file: match their pitch classes.
+      chordOfNotes(event.midi);
+  if (chord != null) {
+    final best = bestChord(chroma);
+    return best != null &&
+        (best.$1 == chord || chordMatch(chroma, chord) >= 0.7);
+  }
+  final classes = {for (final m in event.midi) m % 12};
+  final inside = classes.fold(0.0, (sum, pc) => sum + chroma[pc]);
+  return inside >= 0.7 && classes.every((pc) => chroma[pc] > 0.04);
+}
+
+/// The named chord made of exactly the pitch classes of [midi], if any.
+Chord? chordOfNotes(List<int> midi) {
+  final classes = {for (final m in midi) m % 12};
+  for (final chord in allChords) {
+    if (chord.pitchClasses.length == classes.length &&
+        chord.pitchClasses.containsAll(classes)) {
+      return chord;
+    }
+  }
+  return null;
 }

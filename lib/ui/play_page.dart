@@ -10,7 +10,7 @@ import '../game/judge.dart';
 import '../models/instrument.dart';
 import '../models/song.dart';
 import '../music/pitch.dart';
-import 'home_page.dart';
+import '../app_state.dart';
 
 const _countdown = 3.0;
 

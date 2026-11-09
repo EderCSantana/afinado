@@ -9,33 +9,36 @@ Feito em Flutter (Windows, macOS, Linux e Android).
 
 ## Como funciona
 
-1. **Abrir uma música**
-   - **MIDI** (`.mid`): cada faixa vira uma parte com as notas exatas
-     (melodia, baixo, piano...). É o modo mais preciso.
-   - **Áudio** (`.mp3`, `.wav`, `.ogg`, `.flac`): o app estima a
-     **melodia** (altura de cada instante com o algoritmo YIN, juntada em
-     notas) e os **acordes** (cromagrama por FFT comparado com modelos de
-     acordes maiores, menores, com sétima, sus4, diminutos e power chords).
-     Funciona melhor quando a voz ou o instrumento principal se destaca; numa
-     mixagem cheia a melodia segue o que soar mais forte. O áudio toca como
-     acompanhamento.
-2. **Escolher o instrumento**: voz, violão, guitarra, ukulele, piano,
-   contrabaixo, violino, violoncelo, flauta, saxofones, trompete, clarinete,
-   gaita. A parte é levada para a oitava do instrumento; os de transposição
-   (sax em Mi♭, trompete e clarinete em Si♭) mostram as notas escritas; para
-   a voz vale a nota certa em qualquer oitava.
-3. **Tocar**: as notas correm da direita para a esquerda até a linha. O
-   microfone mostra o caminho da sua afinação sobre elas e, embaixo, a nota
-   a tocar, a nota ouvida e um afinador em cents.
-   - Nota **certa**: até 50 cents (meio semitom) da nota esperada.
-   - **Afinada**: média até 12 cents → *Perfeito*; até 25 → *Bom*; acima →
-     *Desafinado*.
-   - Acordes: o acorde ouvido (cromagrama do microfone) precisa bater com o
-     esperado; a afinação vem dos picos do espectro.
-   - No fim aparecem a pontuação e se você tende a ficar alto ou baixo.
+O app tem três abas:
 
-Configurações: nomes Dó Ré Mi ou C D E, microfone, tom guia (toca a nota a
-tocar, use fones), volume do acompanhamento e atraso do microfone.
+- **Músicas** — sua biblioteca. Vem com exercícios e músicas de domínio
+  público (escala, notas longas, Brilha brilha, Ode à Alegria, Frei
+  Martinho e progressões de acordes) e você adiciona as suas:
+  - **MIDI** (`.mid`): cada faixa vira uma parte com as notas exatas.
+  - **Áudio** (`.mp3`, `.wav`, `.ogg`, `.flac`): o app estima a melodia
+    (YIN) e os acordes (cromagrama); funciona melhor quando a voz ou o
+    instrumento principal se destaca.
+
+  Escolha o instrumento (a parte vai para a oitava dele; sax, trompete e
+  clarinete leem as notas escritas; na voz vale qualquer oitava) e a parte.
+- **Praticar** — o centro do app. A música aparece numa **pauta**, nota por
+  nota, e **espera você**: só avança quando a nota (ou o acorde) certa é
+  sustentada por um instante. Sem relógio e sem "errou": se a nota estiver
+  errada ele diz qual ouviu e quantos semitons subir ou descer; se estiver
+  certa mostra quantos cents está alta ou baixa.
+  - **Ouvir** (espaço) toca a nota ou arpeja o acorde.
+  - Toque numa nota da pauta para começar dali; ← → para andar.
+  - **Repetir um trecho** em loop.
+  - **Nomes das notas** liga/desliga os nomes, para treinar leitura.
+  - **Afinação rigorosa**: só avança com a nota a menos de 25 cents.
+  - No fim: tempo, afinação média (se tende a ficar alto ou baixo) e os
+    trechos mais difíceis, com a opção de treinar só o mais difícil.
+- **Afinador** — nota e oitava, frequência, cents com ponteiro, estabilidade
+  (gráfico do último segundo), acorde reconhecido e barras com quanto de
+  cada nota está soando.
+
+Também há o modo **Tocar junto (no tempo)**, em que as notas correm com a
+música e cada uma recebe uma nota (*Perfeito*, *Bom*, *Desafinado*, *Errou*).
 
 ## Rodar
 
@@ -66,12 +69,15 @@ lib/
     midi_file.dart       # Leitor de arquivos MIDI (com mudanças de tempo)
     audio_analysis.dart  # Melodia e acordes a partir do áudio
   models/                # Song/Part/NoteEvent, instrumentos
-  game/judge.dart        # Compara o que é ouvido com a parte e dá as notas
+  music/builtin_songs.dart # Exercícios e músicas que vêm com o app
+  game/judge.dart        # Tocar junto: compara o ouvido com a parte no tempo
+  game/practice.dart     # Praticar: espera cada nota/acorde e dá dicas
+  app_state.dart         # Biblioteca, seleção e configurações (salvas)
   audio/
     mic_listener.dart    # Microfone (flutter_recorder) → leituras de altura
     playback.dart        # Acompanhamento, decodificação e tom guia (SoLoud)
   song_loader.dart       # Abre MIDI ou áudio
-  ui/                    # Tela inicial e tela de jogo
+  ui/                    # Abas (Músicas, Praticar, Afinador), pauta e jogo
 ```
 
 ## Próximos passos

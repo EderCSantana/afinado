@@ -67,28 +67,50 @@ class MicListener {
     }
   }
 
-  Future<void> start({int deviceId = -1}) async {
-    final recorder = Recorder.instance;
-    await recorder.init(
-      deviceID: deviceId,
-      format: PCMFormat.f32le,
-      sampleRate: sampleRate,
-      channels: RecorderChannels.mono,
-    );
-    recorder.start();
-    _subscription = recorder.uint8ListStream.listen(_onData);
-    recorder.startStreamingData();
+  /// The recorder is one for the whole app: starts and stops run one at a
+  /// time, and only the listener that started it last may stop it (a screen
+  /// being closed must not cut off the one replacing it).
+  static Future<void> _queue = Future.value();
+  static MicListener? _owner;
+
+  Future<void> start({int deviceId = -1}) {
+    final done = _queue.then((_) async {
+      final recorder = Recorder.instance;
+      if (recorder.isInitialized) {
+        recorder.stopStreamingData();
+        recorder.stop();
+        recorder.deinit();
+      }
+      await recorder.init(
+        deviceID: deviceId,
+        format: PCMFormat.f32le,
+        sampleRate: sampleRate,
+        channels: RecorderChannels.mono,
+      );
+      recorder.start();
+      _owner = this;
+      _subscription = recorder.uint8ListStream.listen(_onData);
+      recorder.startStreamingData();
+    });
+    _queue = done.catchError((_) {});
+    return done;
   }
 
-  Future<void> stop() async {
-    await _subscription?.cancel();
-    _subscription = null;
-    final recorder = Recorder.instance;
-    if (recorder.isInitialized) {
-      recorder.stopStreamingData();
-      recorder.stop();
-      recorder.deinit();
-    }
+  Future<void> stop() {
+    final done = _queue.then((_) async {
+      await _subscription?.cancel();
+      _subscription = null;
+      if (_owner != this) return;
+      _owner = null;
+      final recorder = Recorder.instance;
+      if (recorder.isInitialized) {
+        recorder.stopStreamingData();
+        recorder.stop();
+        recorder.deinit();
+      }
+    });
+    _queue = done.catchError((_) {});
+    return done;
   }
 
   Future<void> dispose() async {
