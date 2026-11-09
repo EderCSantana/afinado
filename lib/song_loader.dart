@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import 'analysis/stem_analyzer.dart';
+import 'analysis/stems_to_song.dart';
 import 'audio/playback.dart';
 import 'models/song.dart';
 import 'music/audio_analysis.dart';
@@ -27,6 +29,36 @@ Future<Song> loadSong(String path, {void Function(String)? onProgress}) async {
     return song;
   }
 
+  // The real thing: split the instruments apart and read each one.
+  String? notice;
+  if (StemAnalyzer.available || StemAnalyzer.cached(path) != null) {
+    try {
+      final analysis = await StemAnalyzer.analyze(
+        path,
+        onProgress: (p, message) =>
+            onProgress?.call('$message ${(p * 100).round()}%'),
+      );
+      final parts = partsFromStems(analysis);
+      if (parts.isNotEmpty) {
+        return Song(
+          title: title,
+          duration: analysis.duration,
+          audioPath: path,
+          parts: parts,
+          stems: analysis.stems,
+        );
+      }
+      notice = 'A separação não encontrou instrumentos com notas.';
+    } on AnalyzerException catch (e) {
+      notice = e.message;
+    }
+  } else {
+    notice =
+        'Análise simples: o analisador de instrumentos (Demucs + Basic Pitch) '
+        'não está instalado — veja tools/analyzer/setup.ps1.';
+  }
+
+  // Fallback: one melody and the chords from the whole mix.
   onProgress?.call('Decodificando o áudio…');
   const rate = 22050;
   final (samples, seconds) = await Playback.instance.decode(
@@ -39,6 +71,7 @@ Future<Song> loadSong(String path, {void Function(String)? onProgress}) async {
     title: title,
     duration: seconds,
     audioPath: path,
+    notice: notice,
     parts: [
       for (final p in parts)
         if (!p.isEmpty) p,

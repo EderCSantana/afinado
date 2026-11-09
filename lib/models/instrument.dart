@@ -10,7 +10,11 @@ class Instrument {
     this.chords = false,
     this.anyOctave = false,
     this.transposition = 0,
+    this.stems = const ['vocals'],
   });
+
+  /// Separated instruments (stems) whose part suits it best, in order.
+  final List<String> stems;
 
   final String name;
 
@@ -44,6 +48,7 @@ class Instrument {
       name: part.name,
       kind: part.kind,
       program: part.program,
+      stem: part.stem,
       events: [for (final e in part.events) e.transposed(12 * octaves)],
     );
   }
@@ -51,8 +56,22 @@ class Instrument {
 
 const instruments = [
   Instrument(name: 'Voz', icon: '🎤', low: 40, high: 81, anyOctave: true),
-  Instrument(name: 'Violão', icon: '🎸', low: 40, high: 84, chords: true),
-  Instrument(name: 'Guitarra', icon: '🎸', low: 40, high: 88, chords: true),
+  Instrument(
+    name: 'Violão',
+    icon: '🎸',
+    low: 40,
+    high: 84,
+    chords: true,
+    stems: ['guitar'],
+  ),
+  Instrument(
+    name: 'Guitarra',
+    icon: '🎸',
+    low: 40,
+    high: 88,
+    chords: true,
+    stems: ['guitar'],
+  ),
   Instrument(name: 'Ukulele', icon: '🪕', low: 60, high: 81, chords: true),
   Instrument(
     name: 'Piano / Teclado',
@@ -60,10 +79,23 @@ const instruments = [
     low: 21,
     high: 108,
     chords: true,
+    stems: ['piano', 'other'],
   ),
-  Instrument(name: 'Contrabaixo', icon: '🎸', low: 28, high: 60),
+  Instrument(
+    name: 'Contrabaixo',
+    icon: '🎸',
+    low: 28,
+    high: 60,
+    stems: ['bass'],
+  ),
   Instrument(name: 'Violino', icon: '🎻', low: 55, high: 100),
-  Instrument(name: 'Violoncelo', icon: '🎻', low: 36, high: 76),
+  Instrument(
+    name: 'Violoncelo',
+    icon: '🎻',
+    low: 36,
+    high: 76,
+    stems: ['vocals', 'bass'],
+  ),
   Instrument(name: 'Flauta', icon: '🪈', low: 60, high: 96),
   Instrument(
     name: 'Saxofone alto (Mi♭)',

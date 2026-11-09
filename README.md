@@ -15,9 +15,13 @@ O app tem três abas:
   público (escala, notas longas, Brilha brilha, Ode à Alegria, Frei
   Martinho e progressões de acordes) e você adiciona as suas:
   - **MIDI** (`.mid`): cada faixa vira uma parte com as notas exatas.
-  - **Áudio** (`.mp3`, `.wav`, `.ogg`, `.flac`): o app estima a melodia
-    (YIN) e os acordes (cromagrama); funciona melhor quando a voz ou o
-    instrumento principal se destaca.
+  - **Áudio** (`.mp3`, `.wav`, `.ogg`, `.flac`): com o **analisador de
+    instrumentos** instalado, a música é separada em voz, baixo, guitarra,
+    piano e outros (**Demucs**) e as notas de cada um são lidas
+    (**Basic Pitch**). Cada instrumento vira uma parte (Voz, Baixo,
+    Guitarra / violão, Piano…) e os acordes da música saem das notas da
+    harmonia. Sem o analisador, o app só estima uma melodia e os acordes da
+    mixagem inteira.
 
   Escolha o instrumento (a parte vai para a oitava dele; sax, trompete e
   clarinete leem as notas escritas; na voz vale qualquer oitava) e a parte.
@@ -47,15 +51,37 @@ flutter pub get
 flutter run -d windows
 ```
 
+### Analisador de instrumentos (Demucs + Basic Pitch)
+
+Roda em Python, num ambiente próprio em `%LOCALAPPDATA%\afinado\analyzer`
+(~1,5 GB). Para instalar:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\analyzer\setup.ps1
+```
+
+O app chama `tools/analyzer/analyze.py` (também empacotado com o app) e
+guarda o resultado em `%LOCALAPPDATA%\afinado\analysis`, então cada música
+só é analisada uma vez. Numa CPU sem placa de vídeo, uma música de 3–4
+minutos leva uns 5–8 minutos (separação ~4 min, leitura das notas ~1 min
+por instrumento). As variáveis `AFINADO_PYTHON` e `AFINADO_ANALYZER` mudam
+os caminhos.
+
+O que esperar: voz e baixo saem bem; guitarra e piano razoáveis (muitas
+notas, melhor praticar os **Acordes**); instrumentos com menos de 1% da
+energia da música são ignorados. Nenhuma transcrição automática é perfeita.
+
 Testes:
 
 ```bash
 flutter test                                  # núcleo musical (sem áudio real)
-flutter test integration_test -d windows \
+flutter test integration_test/audio_test.dart -d windows \
   --dart-define=AUDIO=caminho/para/teste.wav  # decodificação, microfone e jogo
+flutter test integration_test/stems_test.dart -d windows \
+  --dart-define=SONG=caminho/para/musica.mp3  # separação e transcrição reais
 ```
 
-O teste de integração espera um arquivo com Dó Ré Mi Fá Sol (0,6 s cada) e
+O teste de áudio espera um arquivo com Dó Ré Mi Fá Sol (0,6 s cada) e
 depois os acordes C, Am e G (2 s cada).
 
 ## Estrutura
@@ -76,15 +102,18 @@ lib/
   audio/
     mic_listener.dart    # Microfone (flutter_recorder) → leituras de altura
     playback.dart        # Acompanhamento, decodificação e tom guia (SoLoud)
+  analysis/              # Chama o analisador e transforma em partes/acordes
   song_loader.dart       # Abre MIDI ou áudio
+tools/analyzer/          # analyze.py (Demucs + Basic Pitch) e instalação
   ui/                    # Abas (Músicas, Praticar, Afinador), pauta e jogo
 ```
 
 ## Próximos passos
 
-- Separar a voz/instrumento de uma mixagem (ex. modelos como Demucs ou
-  Spleeter) e transcrição polifônica (ex. Basic Pitch) para melhorar a
-  leitura de MP3.
+- Tocar junto com a música **sem a sua parte** (as faixas separadas já
+  ficam salvas).
+- Levar o Basic Pitch para dentro do app (ONNX), sem Python.
+- Editar notas e acordes que a transcrição errou.
 - Tocar as outras faixas de um MIDI como acompanhamento.
 - Velocidade reduzida para estudar e repetir trechos.
 - Calibração automática do atraso do microfone.

@@ -198,10 +198,18 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Chords for chord instruments, otherwise the melody.
+  /// Chords for chord instruments; otherwise the part transcribed from the
+  /// instrument's own stem (the bass for a bass...), else the melody.
   int _defaultPart(Song s) {
-    final wanted = instrument.chords ? PartKind.chords : PartKind.melody;
-    final i = s.parts.indexWhere((p) => p.kind == wanted);
+    if (instrument.chords) {
+      final i = s.parts.indexWhere((p) => p.kind == PartKind.chords);
+      if (i >= 0) return i;
+    }
+    for (final stem in instrument.stems) {
+      final i = s.parts.indexWhere((p) => p.stem == stem);
+      if (i >= 0) return i;
+    }
+    final i = s.parts.indexWhere((p) => p.kind == PartKind.melody);
     return i < 0 ? 0 : i;
   }
 }

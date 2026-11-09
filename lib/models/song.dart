@@ -43,9 +43,14 @@ class Part {
     required this.kind,
     required this.events,
     this.program,
+    this.stem,
   });
 
   final String name;
+
+  /// The separated instrument it was transcribed from (vocals, bass,
+  /// guitar, piano, other), for parts found in audio.
+  final String? stem;
   final PartKind kind;
 
   /// Sorted by start time.
@@ -77,7 +82,15 @@ class Song {
     required this.duration,
     required this.parts,
     this.audioPath,
+    this.notice,
+    this.stems = const {},
   });
+
+  /// Separated instruments (name → WAV file), when the audio was split.
+  final Map<String, String> stems;
+
+  /// Something to tell about how the song was read (e.g. a fallback).
+  final String? notice;
 
   final String title;
 

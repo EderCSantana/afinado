@@ -153,11 +153,22 @@ class _SongDetails extends StatelessWidget {
           Text(song.title, style: theme.textTheme.headlineSmall),
           const SizedBox(height: 4),
           Text(
-            song.audioPath != null
+            song.stems.isNotEmpty
+                ? 'Áudio separado por instrumento (Demucs) e transcrito (Basic Pitch) · ${_formatTime(song.duration)}'
+                : song.audioPath != null
                 ? 'Áudio: melodia e acordes estimados pelo som · ${_formatTime(song.duration)}'
                 : '${song.parts.length} parte${song.parts.length > 1 ? 's' : ''} · ${_formatTime(song.duration)}',
             style: theme.textTheme.bodyMedium,
           ),
+          if (song.notice != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              song.notice!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.tertiary,
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
         ],
         Text('Instrumento', style: theme.textTheme.titleMedium),
