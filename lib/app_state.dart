@@ -27,7 +27,7 @@ class PlaySettings {
 }
 
 /// The app's tabs.
-enum AppTab { songs, practice, tuner }
+enum AppTab { songs, practice, tuner, monitor }
 
 /// A song in the library: one that comes with the app or a file.
 class LibraryEntry {

@@ -9,7 +9,7 @@ Feito em Flutter (Windows, macOS, Linux e Android).
 
 ## Como funciona
 
-O app tem três abas:
+O app tem quatro abas:
 
 - **Músicas** — sua biblioteca. Vem com exercícios e músicas de domínio
   público (escala, notas longas, Brilha brilha, Ode à Alegria, Frei
@@ -40,6 +40,13 @@ O app tem três abas:
 - **Afinador** — nota e oitava, frequência, cents com ponteiro, estabilidade
   (gráfico do último segundo), acorde reconhecido e barras com quanto de
   cada nota está soando.
+- **Monitor** — como o *Vocal Pitch Monitor*: um gráfico que corre com o
+  tempo, uma linha por nota (teclas pretas sombreadas, nomes à esquerda), e
+  a altura do que você canta ou toca desenhada por cima, em verde
+  (afinado), amarelo (quase) ou laranja (desafinado). Acima, uma faixa com
+  os acordes reconhecidos ao longo do tempo. A faixa de notas acompanha a
+  sua voz; escolha 5, 10, 20 ou 40 s na tela; **espaço** pausa e, pausado,
+  arrastar para os lados revê os últimos 2 minutos.
 
 Também há o modo **Tocar junto (no tempo)**, em que as notas correm com a
 música e cada uma recebe uma nota (*Perfeito*, *Bom*, *Desafinado*, *Errou*).

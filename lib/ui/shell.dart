@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../app_state.dart';
 import 'library_page.dart';
+import 'monitor_page.dart';
 import 'practice_page.dart';
 import 'tuner_page.dart';
 
-/// The main window: tabs for songs, practice and the tuner.
+/// The main window: tabs for songs, practice, the tuner and the pitch
+/// monitor.
 class Shell extends StatelessWidget {
   const Shell({super.key});
 
@@ -42,6 +44,11 @@ class Shell extends StatelessWidget {
                 selectedIcon: Icon(Icons.graphic_eq),
                 label: Text('Afinador'),
               ),
+              NavigationRailDestination(
+                icon: Icon(Icons.show_chart_outlined),
+                selectedIcon: Icon(Icons.show_chart),
+                label: Text('Monitor'),
+              ),
             ],
           ),
           const VerticalDivider(width: 1),
@@ -52,6 +59,7 @@ class Shell extends StatelessWidget {
               AppTab.songs => const LibraryTab(),
               AppTab.practice => const PracticeTab(),
               AppTab.tuner => const TunerTab(),
+              AppTab.monitor => const MonitorTab(),
             },
           ),
         ],
